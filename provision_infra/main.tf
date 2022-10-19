@@ -88,7 +88,7 @@ resource "aws_route_table" "igw_rt" {
   route {
     cidr_block = var.protected_subnet_cidr_block
     # In this case the vpc_endpoind_id is the identifier of the firewall endpoint that AWS Network Firewall has instantiated in the firewall subnet
-    vpc_endpoint_id = (aws_networkfirewall_firewall.this.firewall_status[0].sync_states[*].attachment[0].endpoint_id)[0]    
+    vpc_endpoint_id = (aws_networkfirewall_firewall.this.firewall_status[0].sync_states[*].attachment[0].endpoint_id)[0]
   }
 
   tags = {
@@ -131,17 +131,17 @@ resource "aws_networkfirewall_firewall" "this" {
 
 
 
-# Create security group for the web server
+# Create security group for the docker host
 
 resource "aws_security_group" "protected" {
-  name        = "allow_web_traffic"
-  description = "Allow web http traffic"
+  name        = "allow_vnc_traffic"
+  description = "Allow vnc traffic"
   vpc_id      = aws_vpc.this.id
 
   ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
+    description = "VNC"
+    from_port   = 5900
+    to_port     = 5905
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -159,62 +159,62 @@ resource "aws_security_group" "protected" {
 }
 
 # Create the interface of the EC2 instance which will play 
-# the role of the web server
+# the role of the docker host
 
-resource "aws_network_interface" "web_server_iface" {
+resource "aws_network_interface" "docker_host_iface" {
   subnet_id       = aws_subnet.protected_subnet.id
-  private_ips     = [var.web_server_ip_address]
+  private_ips     = [var.docker_host_ip_address]
   security_groups = [aws_security_group.protected.id]
 
   tags = {
-    Name = "web_server_iface"
+    Name = "docker_host_iface"
   }
 }
 
-# Get latest Amazon Linux 2 AMI 
+# Get the ami of Ubuntu Jammy 
 
-data "aws_ami" "latest_amzn2_ami" {
-  owners      = ["amazon"]
+data "aws_ami" "ubuntu" {
+  owners      = ["099720109477"]
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-kernel-*-hvm-*-x86_64-gp2"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
   }
   filter {
-      name   = "virtualization-type"
-      values = ["hvm"]
-  }
-  
-  filter {
-      name   = "architecture"
-      values = ["x86_64"]
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 
   filter {
-      name   = "root-device-type"
-      values = ["ebs"]
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
   }
 }
 
-# Create Web Server
+# Create Docker Host
 
-resource "aws_instance" "web_server" {
+resource "aws_instance" "docker_host" {
   depends_on = [aws_route_table.protected_rt, aws_route_table.igw_rt]
 
-  ami           = data.aws_ami.latest_amzn2_ami.id
-  instance_type = var.web_server_instance_type
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = var.docker_host_instance_type
   key_name      = var.key_name
 
   network_interface {
-    network_interface_id = aws_network_interface.web_server_iface.id
+    network_interface_id = aws_network_interface.docker_host_iface.id
     device_index         = 0
   }
 
   user_data            = data.cloudinit_config.docker_host.rendered
   iam_instance_profile = aws_iam_instance_profile.ssm_iam_profile.name
   tags = {
-    Name = "Web Server"
+    Name = "Docker Host"
   }
 }
 
@@ -258,7 +258,6 @@ resource "aws_networkfirewall_rule_group" "stateful" {
     }
     rules_source {
       rules_string = <<EOF
-pass http any any -> $PROTECTED_SUBNET any (msg: "All http traffic towards protected subnet is permitted"; sid: 100; rev:1;)
 pass http $PROTECTED_SUBNET any -> any any (msg: "All http traffic from protected subnet to anywhere is permitted"; sid: 200; rev:1;)
 pass tls $PROTECTED_SUBNET any -> any any (msg: "All tls traffic from protected subnet to anywhere is permitted"; sid: 300; rev:1;)
 pass ftp $PROTECTED_SUBNET any -> any any (msg: "All ftp traffic from protected subnet to anywhere is permitted"; sid: 400; rev:1;)
@@ -303,4 +302,14 @@ resource "aws_networkfirewall_rule_group" "stateless" {
   tags = {
     Name = "StatelessRuleGroup"
   }
+}
+
+# generate a file into configure_infra folder
+# which will be used as the inventory for Ansible
+resource "local_file" "ansible_inventory" {
+  content  = <<-EOT
+      [docker_host]   
+      ${aws_instance.docker_host.id}
+    EOT
+  filename = "../configure_infra/inventory"
 }

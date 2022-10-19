@@ -23,17 +23,12 @@ variable "credentials_location" {
   type        = string
 }
 
-variable "web_server_ip_address" {
+variable "docker_host_ip_address" {
   description = "The IP address of the 2nd worker node of the k8s cluster."
   type        = string
 }
 
-variable "web_server_ami" {
-  description = "The AWS ami from which the EC2 instance representing the master node will be created"
-  type        = string
-}
-
-variable "web_server_instance_type" {
+variable "docker_host_instance_type" {
   description = "The instance type of the master node"
   type        = string
 }
@@ -42,3 +37,4 @@ variable "key_name" {
   description = "Key name of the key pair used to connect to EC2 instances"
   type        = string
 }
+

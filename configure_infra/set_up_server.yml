@@ -1,0 +1,37 @@
+---
+# This playbook sets up an ubuntu server with the following components
+# - installation of a desktop environment
+# - installation of docker engine
+# - installation of tightvnc server 
+
+- name: set password for ubuntu user
+  hosts: docker_host
+  remote_user: ubuntu
+  become: yes
+  tasks:
+    - name: change password
+      ansible.builtin.user:
+        name: "ubuntu"
+        state: present
+        password: "{{ ubuntu_user_password | password_hash('sha512') }}"
+
+- name: install docker engine
+  hosts: docker_host
+  become: yes
+  remote_user: ubuntu
+  roles:
+    - docker
+
+- hosts: docker_host
+  become: yes
+  remote_user: ubuntu
+  gather_facts: true
+  roles:
+    - sdarwin.vnc
+
+- name: install google chrome
+  hosts: docker_host
+  remote_user: ubuntu
+  become: yes
+  roles:
+    - chrome
