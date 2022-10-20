@@ -1,0 +1,5 @@
+---
+- name: Install unzip utility
+  ansible.builtin.apt:
+    name: unzip
+    state: present

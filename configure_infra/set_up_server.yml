@@ -32,9 +32,9 @@
   roles:
     - sdarwin.vnc
 
-- name: install google chrome
+- name: install auxiliary software
   hosts: ubuntu_server
   remote_user: ubuntu
   become: yes
   roles:
-    - chrome
+    - aux_software

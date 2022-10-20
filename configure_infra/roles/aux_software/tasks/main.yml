@@ -1,0 +1,5 @@
+---
+- name: install google chrome
+  import_tasks: install_chrome.yml
+- name: install unzip utility
+  import_tasks: install_unzip.yml

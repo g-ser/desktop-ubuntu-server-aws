@@ -7,4 +7,3 @@
 - name: Install a .deb package
   ansible.builtin.apt:
     deb: /tmp/google-chrome-stable_current_amd64.deb
-

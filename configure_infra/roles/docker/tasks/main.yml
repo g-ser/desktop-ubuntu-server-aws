@@ -46,3 +46,15 @@
   ansible.builtin.systemd:
     name: containerd.service
     enabled: yes
+
+- name: Create directory for docker compose
+  file:
+    path: /root/.docker/cli-plugins
+    state: directory
+    recurse: yes
+
+- name: Install docker-compose
+  get_url: 
+    url: https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-linux-x86_64
+    dest: /root/.docker/cli-plugins
+    mode: 'u+x,g+x'
