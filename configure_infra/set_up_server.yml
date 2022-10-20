@@ -1,11 +1,14 @@
 ---
 # This playbook sets up an ubuntu server with the following components
-# - installation of a desktop environment
-# - installation of docker engine
-# - installation of tightvnc server 
+# - desktop xfce4 environment
+# - docker engine
+# - tiger vnc server
+# - google chrome
+# For the installation of tigervnc server and desktop environment
+# the ansible role of Sam Darwin was used: https://github.com/sdarwin/Ansible-VNC
 
 - name: set password for ubuntu user
-  hosts: docker_host
+  hosts: ubuntu_server
   remote_user: ubuntu
   become: yes
   tasks:
@@ -16,13 +19,13 @@
         password: "{{ ubuntu_user_password | password_hash('sha512') }}"
 
 - name: install docker engine
-  hosts: docker_host
+  hosts: ubuntu_server
   become: yes
   remote_user: ubuntu
   roles:
     - docker
 
-- hosts: docker_host
+- hosts: ubuntu_server
   become: yes
   remote_user: ubuntu
   gather_facts: true
@@ -30,7 +33,7 @@
     - sdarwin.vnc
 
 - name: install google chrome
-  hosts: docker_host
+  hosts: ubuntu_server
   remote_user: ubuntu
   become: yes
   roles:

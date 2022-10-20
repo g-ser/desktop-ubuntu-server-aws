@@ -1,6 +1,4 @@
-# docker host
-
-data "cloudinit_config" "docker_host" {
+data "cloudinit_config" "ubuntu_server" {
   gzip          = true
   base64_encode = true
 

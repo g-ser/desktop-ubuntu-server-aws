@@ -1,15 +1,4 @@
-output "instance_id_docker_host" {
+output "instance_id_ubuntu_server" {
   description = "EC2 instance ID of docker host"
-  value       = aws_instance.docker_host.id
+  value       = aws_instance.ubuntu_server.id
 }
-
-output "public_dns_docker_host" {
-  description = "Public DNS name assigned to the docker host instance"
-  value       = aws_instance.docker_host.public_dns
-}
-
-output "public_ip_docker_host" {
-  description = "Public IP address of the docker host"
-  value       = aws_instance.docker_host.public_ip
-}
-

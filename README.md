@@ -20,7 +20,7 @@ In the folder [configure_infra](/configure_infra/) run:
 
 # Connect to the Docker Host Server using a VNC viewer
 
-* Create an SSH tunnel to the destination server: ```ssh -i <PUBLIC_KEY> -L 5901:localhost:5901 <VNC_USER>@<INSTANCE_ID_DOCKER_HOST>```
+* Create an SSH tunnel to the destination server: ```ssh -i <PUBLIC_KEY> -L 5901:localhost:5901 <VNC_USER>@<INSTANCE_ID_ubuntu_server>```
 * On the VNC viewer provide the following: localhost:5901
 
 
