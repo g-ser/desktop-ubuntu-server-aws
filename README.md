@@ -62,9 +62,7 @@ Note that accessing the desktop environment of the Ubuntu EC2 instance using VNC
 When Ansible does not find an ```ansible.cfg``` file, it uses the defaults which means that it will use the configuration of ```~/.ssh/config``` for connecting via SSH to the hosts which needs to interact with. From that perspective, in order for Ansible to connect to the EC2 instances via SSH, all the points discussed in the section above ([Human Access](#human_access)) are still relevant. The playbooks themselves define the user that needs to be used, however, you still need to specify the ```KEY_PEM_FILE``` which is the pem file of the key-pair that you need to generate using AWS console as discussed in the [Prerequisites for working with the repo](#prerequisites) section.
 For running the playbook of this repository follow the instructions in the section below: [Run Ansible](#run_ansible)
 <br/><br/>
-# Provision the infrastructure and configure the Ubuntu instance<a name="run_scripts"></a>
 
-Note that terraform generates a file into the configure_infra folder called ```inventory``` which will be used as the inventory for Ansible
 # Architecture<a name="architecture"></a>
 
 A high level view of the virtual infrastructure which will be created by the terraform configuration files included in this repo can be seen in the picture below: 
@@ -79,6 +77,8 @@ A high level view of the virtual infrastructure which will be created by the ter
   - It does not allow any inbound traffic (apart from the traffic generated within the security group itself). Note that ssh access to the EC2 Ubuntu instance whose interface is in the default security group is possible through AWS SSM
   - It allows all outbound traffic 
 
+# Provision the infrastructure and configure the Ubuntu instance<a name="run_scripts"></a>
+Note that terraform generates a file into the configure_infra folder called ```inventory``` which will be used as the inventory for Ansible
 ### Run terraform
 In the folder [provision_infra](/provision_infra/) run:
 ```terraform apply```
