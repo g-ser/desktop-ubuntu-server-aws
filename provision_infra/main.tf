@@ -83,6 +83,18 @@ data "aws_ami" "ubuntu" {
   }
 }
 
+# Create AWS EBS volume
+
+resource "aws_ebs_volume" "ubuntu_server_ebs" {
+  availability_zone = var.availability_zone
+  size              = 40
+  type              = "gp2"
+
+  tags = {
+    Name = "Ubuntu server ebs volume"
+  }
+}
+
 # Create Docker Host
 
 resource "aws_instance" "ubuntu_server" {
@@ -101,6 +113,13 @@ resource "aws_instance" "ubuntu_server" {
   tags = {
     Name = "Ubuntu Server"
   }
+}
+
+# Attach the ebs volume to the instance
+resource "aws_volume_attachment" "ebs_att" {
+  device_name = "/dev/sdh"
+  volume_id   = aws_ebs_volume.ubuntu_server_ebs.id
+  instance_id = aws_instance.ubuntu_server.id
 }
 
 # generate a file into configure_infra folder

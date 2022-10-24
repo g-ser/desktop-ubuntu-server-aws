@@ -1,4 +1,6 @@
 ---
+- name: Make an ebs volume available for use on Ubuntu
+  import_tasks: configure_ebs.yml
 - name: Update the apt package index
   apt:
     update_cache: yes 
@@ -58,3 +60,34 @@
     url: https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-linux-x86_64
     dest: /root/.docker/cli-plugins
     mode: 'u+x,g+x'
+
+- name: Change permissions of docker_data folder
+  ansible.builtin.file:
+    path: /docker_data
+    mode: '777'
+
+- name: Replace file starting with ExecStart in docker service config file
+  ansible.builtin.lineinfile:
+    path: /usr/lib/systemd/system/docker.service
+    regexp: 'ExecStart'
+    line: ExecStart=/usr/bin/dockerd -g /docker_data -H fd:// --containerd=/run/containerd/containerd.sock
+    backrefs: yes
+
+- name: Remove folder /var/lib/docker
+  ansible.builtin.file:
+    path: /var/lib/docker
+    state: absent
+
+- name: Stop service docker if running
+  ansible.builtin.systemd:
+    name: docker
+    state: stopped
+
+- name: Just force systemd to reread configs
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Make sure docker is running
+  ansible.builtin.systemd:
+    state: started
+    name: docker

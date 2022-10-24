@@ -4,7 +4,7 @@ vnc_users:
   - username: 'ubuntu'
     usergroup: 'ubuntu'     
     vnc_num: 1
-    vnc_default_password:
+    vnc_default_password: 
  
 
 

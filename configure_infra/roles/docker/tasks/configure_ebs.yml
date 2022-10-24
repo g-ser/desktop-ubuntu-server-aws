@@ -1,0 +1,16 @@
+---
+- name: Create a xfs filesystem on /dev/nvme1n1
+  community.general.filesystem:
+    fstype: xfs
+    dev: /dev/nvme1n1
+- name: Create directory for docker data
+  file:
+    path: /docker_data
+    state: directory
+- name: Mount /dev/nvme1n1 to /docker_data
+  ansible.posix.mount:
+    path: /docker_data
+    src: /dev/nvme1n1
+
+
+
