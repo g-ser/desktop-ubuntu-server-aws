@@ -11,6 +11,8 @@
   ansible.posix.mount:
     path: /docker_data
     src: /dev/nvme1n1
+    state: mounted
+    fstype: xfs
 
 
 
