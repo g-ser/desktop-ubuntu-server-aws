@@ -57,7 +57,7 @@
 
 - name: Install docker-compose
   get_url: 
-    url: https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-linux-x86_64
+    url: https://github.com/docker/compose/releases/download/v2.23.1/docker-compose-linux-x86_64
     dest: /root/.docker/cli-plugins
     mode: 'u+x,g+x'
 
@@ -70,7 +70,7 @@
   ansible.builtin.lineinfile:
     path: /usr/lib/systemd/system/docker.service
     regexp: 'ExecStart'
-    line: ExecStart=/usr/bin/dockerd -g /docker_data -H fd:// --containerd=/run/containerd/containerd.sock
+    line: ExecStart=/usr/bin/dockerd --data-root /docker_data -H fd:// --containerd=/run/containerd/containerd.sock
     backrefs: yes
 
 - name: Remove folder /var/lib/docker
